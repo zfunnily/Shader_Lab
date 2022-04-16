@@ -144,13 +144,13 @@
 
         fixed4 frag(VertexOutput i) : SV_TARGET
         {
-           fixed2 p=(i.uv.zw*2.-1)/1;
+           fixed2 p=(i.uv.xy*2.-1)/1;
            fixed2 center=fixed2(.0,-.0);
            fixed isNear = 0.;
     
            fixed fmodT = fmod(_Time.y,5.);
-        //    fixed time = fmodT-3.;
-            fixed time = _BrokenScale;
+           fixed time = fmodT-3.;
+            // fixed time = _BrokenScale;
 
            [unroll(100)]
            for(int c=0;c<NUM;c++)
@@ -225,6 +225,24 @@
                finalCol = finalCol*(1.-isNear);
             }
 
+            // //1.先将uv平移到原点(让图片中心与原点重合)
+            float2 pianyi=(0.5,0.5);
+            float2 tempUV=i.uv;
+            tempUV -= pianyi;
+        
+            //距离圆心超过0.5的点渲染为透明
+            if(length(tempUV)>0.5){
+                return fixed4(0,0,0,0);
+            }
+            float2 finalUV=0;
+            float angle=_Time.x*1.0;
+            //2.确定是按照z轴旋转，选取旋转公式
+            finalUV.x=tempUV.x * cos(angle) - tempUV.y*sin(angle);
+            finalUV.y=tempUV.x * sin(angle) + tempUV.y*cos(angle);
+            //3.将uv还原到以前的位置
+            finalUV += pianyi;
+            fixed4 col = tex2D(_MainTex, finalUV);
+            // return col;
             return fixed4(finalCol, 1.);
         }
         ENDCG
