@@ -5,6 +5,7 @@
         _MainTex ("Main Tex", 2D) = "white" {}
 		_BrokenNormalMap("BrokenNormal Map",2D)="bump"{}
 		_BrokenScale("BrokenScale",Range(0,2.5))=1.0
+		_RotateSpeed("_RotateSpeed",Range(0,2.5))=1.0
 	}
 
 	SubShader
@@ -30,6 +31,7 @@
 		sampler2D _BrokenNormalMap;
 		float4 _BrokenNormalMap_ST;
 		float _BrokenScale;
+		float _RotateSpeed;
 
     	struct VertexInput {
             float4 vertex : POSITION;
@@ -132,25 +134,67 @@
             return factor;
         }
 
+        //围绕x旋转
+        float4x4 doTwistX(float angle)
+        {
+            float cosAngle = cos(angle);
+            float sinAngle = sin(angle);
+            return float4x4(1, 0, 0, 0,
+                            0, cosAngle, -sinAngle, 0,
+                            0, sinAngle, cosAngle, 0,
+                            0, 0, 0, 1);
+        }
+
+        //围绕y旋转
+        float4x4 doTwistY(float angle)
+        {
+            float cosAngle = cos(angle);
+            float sinAngle = sin(angle);
+            return float4x4(cosAngle, 0, sinAngle, 0,
+                            0, 1, 0, 0,
+                            -sinAngle, 0, cosAngle, 0, 
+                            0, 0, 0, 1);
+        }
+
+        //围绕z旋转
+        float4x4 doTwistZ(float angle)
+        {
+            float cosAngle = cos(angle);
+            float sinAngle = sin(angle);
+            return float4x4(cosAngle, -sinAngle, 0, 0,
+                            sinAngle, cosAngle, 0, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 1);
+        }
+
         VertexOutput vert (VertexInput v)
         {
             VertexOutput o;
+            // fixed4 rotPos = mul(doTwistX(_RotateSpeed*_BrokenScale),v.vertex);
             o.pos = UnityObjectToClipPos(v.vertex);
-            o.uv.xy=TRANSFORM_TEX(v.uv,_MainTex);
-            o.uv.zw=TRANSFORM_TEX(v.uv, _BrokenNormalMap);
+            o.uv.xy =TRANSFORM_TEX(v.uv,_MainTex);
+            o.uv.z = v.uv.z;
+
+            // float2 pivot = float2(0.5, 0.5);         //中心点
+            // float2x2 rot = doTwistX(_RotateSpeed*_BrokenScale);  //确定以x轴旋转
+            // uv = uv - pivot;
+            // uv = mul(rot, uv);           //旋转矩阵相乘变换坐标
+            // uv += pivot;
+
             //VertexFactory
             return o;
         }
 
         fixed4 frag(VertexOutput i) : SV_TARGET
         {
+            // fixed2 p=(i.uv.xy*2.-_ScreenParams.xy)/_ScreenParams.x;
            fixed2 p=(i.uv.xy*2.-1)/1;
-           fixed2 center=fixed2(.0,-.0);
+           fixed2 center=fixed2(.0,.0);
            fixed isNear = 0.;
     
            fixed fmodT = fmod(_Time.y,5.);
-           fixed time = fmodT-3.;
-            // fixed time = _BrokenScale;
+        //    fixed time = fmodT-3.;
+            fixed time = _BrokenScale;
 
            [unroll(100)]
            for(int c=0;c<NUM;c++)
@@ -191,7 +235,15 @@
                rawCoord.y = _ScreenParams.y - rawCoord.y;
                // simulat the reflect effect
                fixed2 brokenOffset = fixed2(rnd(fixed2(belongIdx, 0.))*0.006, 0.);
-               fixed2 uv = (rawCoord.xy)/_ScreenParams.x + brokenOffset;
+
+               float4 uv;
+               uv.xy = (rawCoord.xy)/_ScreenParams.x + brokenOffset;
+               uv.z = i.uv.z;
+               uv.w = 1;
+
+               uv.xy = uv.xy - float2(.5, .5);
+               uv = mul(doTwistZ(_RotateSpeed*_BrokenScale), uv);
+               uv.xy = uv.xy + float2(.5, .5);
 
                fixed4 tex = tex2D(_MainTex, uv);
                finalCol = tex.xyz;
@@ -225,24 +277,6 @@
                finalCol = finalCol*(1.-isNear);
             }
 
-            // //1.先将uv平移到原点(让图片中心与原点重合)
-            float2 pianyi=(0.5,0.5);
-            float2 tempUV=i.uv;
-            tempUV -= pianyi;
-        
-            //距离圆心超过0.5的点渲染为透明
-            if(length(tempUV)>0.5){
-                return fixed4(0,0,0,0);
-            }
-            float2 finalUV=0;
-            float angle=_Time.x*1.0;
-            //2.确定是按照z轴旋转，选取旋转公式
-            finalUV.x=tempUV.x * cos(angle) - tempUV.y*sin(angle);
-            finalUV.y=tempUV.x * sin(angle) + tempUV.y*cos(angle);
-            //3.将uv还原到以前的位置
-            finalUV += pianyi;
-            fixed4 col = tex2D(_MainTex, finalUV);
-            // return col;
             return fixed4(finalCol, 1.);
         }
         ENDCG
