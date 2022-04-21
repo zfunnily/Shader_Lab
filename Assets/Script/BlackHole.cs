@@ -10,6 +10,9 @@ public class BlackHole : MonoBehaviour{
         mat = GetComponent<MeshRenderer>().material;
     }// Update is called once per frame
     void Update () {
-         mat.SetVector("_BlackHolePos",blackHole.position);
+        Debug.Log("blackHole.position: ");
+        Debug.Log(blackHole.position);
+        Debug.Log(mat.name);
+        mat.SetVector("_BlackHolePos",blackHole.position);
     }
 }
