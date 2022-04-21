@@ -71,20 +71,25 @@ SubShader{
 
 			//该部分为原作者对顶点变换的判断过程
 
-			if(dis<_Range){
-			//新的顶点位置在靠近黑洞的方向上受到的偏移影响，越靠近黑洞，偏移值越大
-				worldPos.xyz+=normalize(_BlackHolePos-oriWorldPos)*(_Range-dis);
-			//当变换后的顶点位置超出了黑洞位置时，该顶点位置即为黑洞位置，即完全被吞噬
-			//这里是通过判断(worldPos-_BlackHolePos)和(_BlackHolePos-oriWorldPos)向量的方向
-			//来确定是否超过黑洞，若同向则超过，其实自己动手画一下向量关系很直白
-				if(dot((oriWorldPos-_BlackHolePos),(_BlackHolePos-worldPos))>0){
-					worldPos.xyz=_BlackHolePos;
-				}
-			}
+			// if(dis<_Range){
+			// //新的顶点位置在靠近黑洞的方向上受到的偏移影响，越靠近黑洞，偏移值越大
+			// 	worldPos.xyz+=normalize(_BlackHolePos-oriWorldPos)*(_Range-dis);
+			// //当变换后的顶点位置超出了黑洞位置时，该顶点位置即为黑洞位置，即完全被吞噬
+			// //这里是通过判断(worldPos-_BlackHolePos)和(_BlackHolePos-oriWorldPos)向量的方向
+			// //来确定是否超过黑洞，若同向则超过，其实自己动手画一下向量关系很直白
+			// 	if(dot((oriWorldPos-_BlackHolePos),(_BlackHolePos-worldPos))>0){
+			// 		worldPos.xyz=_BlackHolePos;
+			// 	}
+			// }
 
 			//该部分通过lerp函数来避免上面的两次if判断(if判断相对比较耗性能)
 			//_HoleAmount系数是为了使靠近黑洞时受到的吞噬效果更加明显
-			// worldPos.xyz=lerp(oriWorldPos,_BlackHolePos,clamp((_Range-dis)*_HoleAmount/_Range,0,1));
+            // 官方: float lerp(float a, float b, float w) { return a + w*(b-a);}
+            //oriWorldPos + (clamp((_Range-dis)*_HoleAmount/_Range,0,1))  * (_BlackHolePos - oriWorldPos);
+
+            // MyExplain: float lerp(float a, float b, float w) { return a(1-w) + b * w; }
+            //oriWorldPos(1-  (clamp((_Range-dis)*_HoleAmount/_Range,0,1)) )  + _BlackHolePos * (clamp((_Range-dis)*_HoleAmount/_Range,0,1))
+			worldPos.xyz=lerp(oriWorldPos,_BlackHolePos,clamp((_Range-dis)*_HoleAmount/_Range,0,1));
 			
 			o.pos=mul(UNITY_MATRIX_VP,worldPos);
 			o.uv.xy=TRANSFORM_TEX(v.texcoord,_MainTex);
