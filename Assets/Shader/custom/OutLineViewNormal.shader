@@ -36,7 +36,7 @@ Shader "Custom/OutlineViewNormal"
 			UnityObjectToClipPos:  通过模型顶点坐标转换为剪裁空间的顶点坐标
 			ObjSpaceViewDir() 模型空间中的顶点坐标 -> 模型空间从这个点到摄像机的观察方向
 			normalize(x): 归一化向量
-			step(a, x):  如果 x<a，返回 0；否则，返回 1。
+			step(a, x):  如果 a>x，返回 0；否则，返回 1。
 			dot(A, B): 返回A和B的点积 投影
 			*/
             v2f vert (appdata_base v)
