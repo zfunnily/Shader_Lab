@@ -44,15 +44,6 @@ float4 _MainTex_ST;
 fixed4 frag(v2f i) : COLOR{
 
     float dis = sqrt(i.uv.x * i.uv.x + i.uv.y * i.uv.y);
-    if(dis>0.5){
-        c = float4(1, 1, 1, 1);
-        discard;
-    }else if(dis<_Border && dis<_Border-_Width){
-        c = float4(1, 1, 1, 1);
-    }else{
-        c = float4(1, 0, 0, 1);
-    }
-    return c;
     float maxDistance = 0.05;
     if(dis > 0.5){
         discard;

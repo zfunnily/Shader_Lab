@@ -39,6 +39,7 @@ Shader "Custom/DissolveVert"
 			sampler2D _NoiseTex;
 			float4 _NoiseTex_ST;
 			float _Threshold;
+			int _IsVerse;//增加选中反转
 			
 			v2f vert (appdata v)
 			{
@@ -61,8 +62,10 @@ Shader "Custom/DissolveVert"
 			fixed4 frag (v2f i) : SV_Target
 			{
 				fixed cutout = tex2D(_NoiseTex, i.uvNoiseTex.xy).r;
-				//clip(_Threshold - cutout); //四散消融
-				clip(lerp(i.uvNoiseTex.z, cutout, -1)); //按方向消融 + 噪声图
+				if(_IsVerse)//增加选中反转
+				    cutout = 1- cutout;
+				clip(_Threshold - cutout); //四散消融
+				// clip(lerp(i.uvNoiseTex.z, cutout, -1)); //按方向消融 + 噪声图
 				// clip(i.uvNoiseTex.z);//按方向消融 没有噪声图
 
 				return tex2D(_MainTex, i.uvMainTex);
