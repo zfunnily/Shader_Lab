@@ -106,7 +106,7 @@ Material:
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
-    - _Threshold: 2
+    - _Threshold: -2
     - _Value1: 0.787
     - _Value2: 0.747
     - _Value3: 0.878
