@@ -5,7 +5,6 @@ Shader "Custom/DissolveVert"
 		_MainTex ("Texture", 2D) = "white" {}
 		_NoiseTex("Noise", 2D) = "white" {}
 		_Threshold("Threshold", Range(-2.0, 2.0)) = 0.5
-
 	}
 	SubShader
 	{
@@ -49,7 +48,7 @@ Shader "Custom/DissolveVert"
 				o.uvNoiseTex.xy = TRANSFORM_TEX(v.uv, _NoiseTex);
 
 				//因为模型空间中y值范围为(-0.5,0.5)，所以还需要进行偏移以保证裁剪的正确
-				o.uvNoiseTex.z = _Threshold - o.vertex.y ; //调整这里来改变消失轴向 
+				o.uvNoiseTex.z = _Threshold - o.vertex.y; //调整这里来改变消失轴向 
 
 				return o;
 			}
