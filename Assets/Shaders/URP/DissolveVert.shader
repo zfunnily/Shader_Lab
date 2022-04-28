@@ -73,7 +73,6 @@ Shader "URP/DissolveVert"
 				o.uvMainTex = TRANSFORM_TEX(v.uv, _MainTex);
 				o.uvNoiseTex.xy = TRANSFORM_TEX(v.uv, _NoiseTex);
 
-				//因为模型空间中y值范围为(-0.5,0.5)，所以还需要进行偏移以保证裁剪的正确
 				float4 udef = o.vertex;
 				#if _MODELTOGGLE_ON
 				udef = v.vertex;
