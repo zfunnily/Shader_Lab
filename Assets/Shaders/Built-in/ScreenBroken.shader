@@ -91,7 +91,7 @@ Shader "Custom/RenderImage/ScreenBroken" {
 			}
 			ENDCG
 		}
-		
+    }	
 	
 	FallBack "Diffuse"
 }
