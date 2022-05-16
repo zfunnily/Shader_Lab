@@ -1,5 +1,5 @@
 /*
-纹理颜色: https://www.jianshu.com/p/d8b535efa9db
+纹理渐变颜色: https://www.jianshu.com/p/d8b535efa9db
 */
 Shader "URP/DissolveVert"
 {
@@ -78,6 +78,9 @@ Shader "URP/DissolveVert"
 				udef = v.vertex;
 				#endif
 
+				float3 center = TransformObjectToWorld(float4(0,0,0,1)).xyz;
+				float3 now =  TransformObjectToWorld(v.vertex);
+
 				#if _DISSOLVE_NX
 				o.uvNoiseTex.z = _Threshold - udef.x; 
 				#elif _DISSOLVE_X
@@ -87,9 +90,9 @@ Shader "URP/DissolveVert"
 				#elif _DISSOLVE_Y
 				o.uvNoiseTex.z = _Threshold - udef.y; 
 				#elif _DISSOLVE_NS
-				o.uvNoiseTex.z = _Threshold - udef.z;
+				o.uvNoiseTex.z = _Threshold + distance(now, center);
 				#elif _DISSOLVE_S
-				o.uvNoiseTex.z = _Threshold + udef.z;
+				o.uvNoiseTex.z = _Threshold - distance(now, center);;
 				#endif
 				
 				return o;

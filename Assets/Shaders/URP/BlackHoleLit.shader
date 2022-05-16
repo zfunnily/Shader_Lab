@@ -1,7 +1,6 @@
 /*
 黑洞: https://zhuanlan.zhihu.com/p/32168185
 阴影: https://blog.csdn.net/lvcoc/article/details/113859756
-sprite render 阴影: 开启debug模式就可以设置 投影+接收投影
 */
 
 Shader "URP/BlackHole"
@@ -15,30 +14,22 @@ Shader "URP/BlackHole"
    //靠近黑洞位置的影响系数
    _HoleAmount("HoleAmount",Range(1.0,2.0))=1.5
    _BlackHolePos("Black Hole Pos", Vector) = (1,1,1, 1)
-
-	_ShadowColor("ShadowColor",COLOR)=(0,0,0,0)
-	_ShadowFalloff("ShadowFalloff",Range(0,1))=0.5
-	_Plane("Plane",float)=0
 	}
 SubShader{
 	Tags{"Queue"="Transparent" "RenderType"="Opaque" "IgnoreProjector"="True" "RenderPipeline"="UniversalPipeline"}
 	HLSLINCLUDE
 		#pragma vertex vert
 		#pragma fragment frag
-		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+		#include "Lighting.hlsl"
 		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Input.hlsl"
         #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+
 		CBUFFER_START(UnityPerMaterial)
 			float4 _MainColor;
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			float4 _ShadowColor;
-			float _ShadowFalloff;
 			float _Plane;
-
 		CBUFFER_END
-
 	ENDHLSL
 
 	Pass{
@@ -67,21 +58,8 @@ SubShader{
 			float4 pos:SV_POSITION;
 			float4 uv:TEXCOORD0;
             float3 color:COLOR;
-			float4 shadowCoord : TEXCOORD1; // jave.lin : shadow recieve 在给到 fragment 时，要有阴影坐标
 		};
 
-		float3 Diffuse(a2v v)
-		{
-			//精度转换 法线归一
-            float3 worldNormal = normalize(TransformObjectToWorldNormal(v.normal));
-            //世界光照的方向 
-            float3 worldLightDir = normalize(_MainLightPosition.xyz);
-            //环境
-            float3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-			//根据兰伯特模型计算像素的光照信息，小于0的部分理解为看不见，置为0
-			float3 lambert = 0.5 * dot(worldNormal, worldLightDir) + 0.5;
-			return _MainLightColor.rgb * lambert + ambient;
-		}
 
 		v2f vert(a2v v){
 			v2f o;
@@ -96,12 +74,8 @@ SubShader{
 			o.pos=mul(UNITY_MATRIX_VP,worldPos);
 			o.uv.xy=TRANSFORM_TEX(v.texcoord,_MainTex);
 
-			
 			//漫反射 光照模型
-            o.color = Diffuse(v);
-
-			//阴影
-			 o.shadowCoord = TransformWorldToShadowCoord(worldPos); 
+            o.color = Diffuse(v.normal);
 			return o;
 		}
 
@@ -110,16 +84,9 @@ SubShader{
             float4 albedo = tex2D(_MainTex, i.uv);
 			float4 finalCol = float4(i.color * albedo.rgb , albedo.a);
 			return finalCol;
-
-			float3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-			float shadow = MainLightRealtimeShadow(i.shadowCoord); 
-			finalCol.rgb = lerp(finalCol.rgb * ambient.rgb, finalCol.rgb, shadow);
-			// finalCol.rgb *= shadow;
-            return finalCol;
 		}
 		ENDHLSL
 	}
-
 }
     Fallback "Diffuse"
 }
