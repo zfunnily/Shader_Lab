@@ -54,7 +54,7 @@ CBUFFER_END
 				o.worldNormal = TransformObjectToWorldNormal(v.normal).xyz;
 				o.worldPos = mul(UNITY_MATRIX_M, v.vertex).xyz;
 				o.worldViewDir = _WorldSpaceCameraPos.xyz - o.worldPos;
-				o.worldRefr = refract(-normalize(o.worldViewDir), normalize(o.worldNormal), _RefractRatio);	// ÕÛÉäÂÊ
+				o.worldRefr = refract(-normalize(o.worldViewDir), normalize(o.worldNormal), _RefractRatio);	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  
 				// TRANSFER_SHADOW(o);
 				return o;
@@ -81,6 +81,6 @@ CBUFFER_END
 	}
  
 	// FallBack "Reflective/VertexLit"
-	// ²»ÖªµÀURPÓÃÊ²Ã´fallback´úÌæ
+	// ï¿½ï¿½Öªï¿½ï¿½URPï¿½ï¿½Ê²Ã´fallbackï¿½ï¿½ï¿½ï¿½
 	FallBack "Universal Render Pipeline/Simple Lit"
 }

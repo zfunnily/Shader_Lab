@@ -1,10 +1,10 @@
-/*
-ÈÈÈÅ¶¯£¨ÈÈÅ¤Çú£©Ğ§¹ûµÄÊµÏÖ£º https://blog.csdn.net/zakerhero/article/details/107635481
+ï»¿/*
+çƒ­æ‰°åŠ¨ï¼ˆçƒ­æ‰­æ›²ï¼‰æ•ˆæœçš„å®ç°ï¼š https://blog.csdn.net/zakerhero/article/details/107635481
 
 _cameraOpaqueTexture does not render any URP sprite:
 https://forum.unity.com/threads/scene-color-shadergraph-node-_cameraopaquetexture-with-urp-2d-lighting.757985/
 
-°ëÍ¸Ã÷: https://www.bilibili.com/read/cv15512651
+åŠé€æ˜: https://www.bilibili.com/read/cv15512651
 */
 
 Shader "URP/Distortion" 

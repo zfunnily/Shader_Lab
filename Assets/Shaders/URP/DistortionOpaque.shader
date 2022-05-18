@@ -1,10 +1,10 @@
 /*
-热扰动（热扭曲）效果的实现： https://blog.csdn.net/zakerhero/article/details/107635481
+鐑壈鍔紙鐑壄鏇诧級鏁堟灉鐨勫疄鐜帮細 https://blog.csdn.net/zakerhero/article/details/107635481
 
 _cameraOpaqueTexture does not render any URP sprite:
 https://forum.unity.com/threads/scene-color-shadergraph-node-_cameraopaquetexture-with-urp-2d-lighting.757985/
 
-半透明: https://www.bilibili.com/read/cv15512651
+鍗婇�忔槑: https://www.bilibili.com/read/cv15512651
 */
 
 Shader "URP/DistortionOpaque" 

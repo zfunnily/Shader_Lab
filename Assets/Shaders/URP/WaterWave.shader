@@ -3,11 +3,11 @@ Shader "URP/WaterWave"
 	Properties {
 		_NoiseTex ("Noise Texture (RG)", 2D) = "white" {}
 		_HeatTime  ("Heat Time", range (0,1)) = 0.1
-		//波纹缩放大小
+		//娉㈢汗骞呭害
 		_WaveScale ("WaveScale", Vector) = (50, 50, 1, 1)
-		//折射偏移方向
+		//鎶樺皠鍋忕Щ鏂瑰悜
 		[KeywordEnum(X,Y, XY, YX)] _OffsetDirection("OffsetDirection", Float) = 0.0
-		//波纹强度
+		//娉㈢汗寮哄害
 		_HeatForce  ("Heat Force", range (-0.1,0.1)) = 0.008
 	}
 
