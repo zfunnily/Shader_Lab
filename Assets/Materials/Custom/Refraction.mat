@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Refraction
-  m_Shader: {fileID: 4800000, guid: ab355bb7f08f0914faa1c7b323dce9bd, type: 3}
+  m_Shader: {fileID: 4800000, guid: 5796f4f32eaa8274092f6f47e111b684, type: 3}
   m_ShaderKeywords: _OFFSETDIRECTION_XY
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -89,7 +89,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NoiseTex:
-        m_Texture: {fileID: 2800000, guid: b7947b5cd3f98454ab4ba1010f4e1ecb, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -132,10 +132,12 @@ Material:
     - _DistanceX: 0
     - _DistanceY: 0
     - _DistortScale: 0.05
-    - _Distortion: 0
+    - _Distortion: 23.1
     - _DstBlend: 0
     - _Effect_Fade: 1
     - _EtaRatio: 0
+    - _FenierEdge: 0
+    - _FenierIntensity: 2
     - _Focus: -100
     - _FresnelBias: 0.5
     - _FresnelPower: 0.5
@@ -143,8 +145,8 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HeatForce: 0.0146
-    - _HeatTime: 0.195
+    - _HeatForce: 0.1
+    - _HeatTime: 0
     - _Metallic: 0
     - _Mode: 0
     - _ModelToggle: 0
@@ -155,7 +157,7 @@ Material:
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _RefractAmount: 0.429
+    - _RefractAmount: 1
     - _RefractRatio: 0.738
     - _RefractionAmount: 0.732
     - _Shininess: 0.2
@@ -179,6 +181,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RefractColor: {r: 1, g: 1, b: 1, a: 1}
     - _Scale: {r: 12.68, g: 0, b: 0, a: 1}
+    - _SpColor: {r: 1, g: 1, b: 1, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}
-    - _WaveScale: {r: 50, g: 50, b: 1, a: 1}
+    - _WaveScale: {r: 0, g: 0, b: 1, a: 1}
   m_BuildTextureStacks: []

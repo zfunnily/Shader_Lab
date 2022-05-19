@@ -47,7 +47,6 @@ Shader "Custom/RenderImage/ScreenBroken" {
 			}
  
 			fixed4 frag(v2f i) : SV_Target{
-
 				 //读取片元对应法线贴图的颜色
 				fixed4 packedNormal = tex2D(_BrokenNormalMap,i.uv.zw);
 

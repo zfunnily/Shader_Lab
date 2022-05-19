@@ -1,4 +1,4 @@
-/*
+﻿/*
 热扰动（热扭曲）效果的实现： https://blog.csdn.net/zakerhero/article/details/107635481
 
 _cameraOpaqueTexture does not render any URP sprite:

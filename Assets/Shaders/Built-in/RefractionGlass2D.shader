@@ -1,7 +1,8 @@
 /*
+实际上只是一个折射， 2D的折射
 https://www.jb51.net/article/185688.htm
 */
-Shader "Customer/GlassRefraction"
+Shader "Customer/GlassRefraction2D"
 {
     Properties
     {
