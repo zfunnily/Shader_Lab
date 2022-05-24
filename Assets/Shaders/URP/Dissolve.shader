@@ -17,7 +17,7 @@ Shader "URP/DissolveVert"
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Opaque" }
+		Tags {"Queue" = "Transparent"  "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline"  }
 		HLSLINCLUDE
 		#pragma vertex vert
 		#pragma fragment frag
@@ -27,12 +27,17 @@ Shader "URP/DissolveVert"
 		#pragma multi_compile _DISSOLVE_NX _DISSOLVE_X  _DISSOLVE_NY _DISSOLVE_Y _DISSOLVE_NS _DISSOLVE_S 
 
 		CBUFFER_START(UnityPerMaterial)
-			sampler2D _MainTex;
+			// sampler2D _MainTex;
 			float4 _MainTex_ST;
 			sampler2D _NoiseTex;
 			float4 _NoiseTex_ST;
 			sampler2D _RampTex;
 			float4 _RampTex_ST;
+
+			TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+            TEXTURE2D(_MaskTex);
+            SAMPLER(sampler_MaskTex);
 
 			float _Threshold;
 			float _EdgeLength;
@@ -43,9 +48,10 @@ Shader "URP/DissolveVert"
 		CBUFFER_END
 
 		ENDHLSL
-
 		Pass
 		{
+
+		
 			// Cull Off //要渲染背面保证效果正确
 
 			HLSLPROGRAM
@@ -114,7 +120,8 @@ Shader "URP/DissolveVert"
 				float degree = saturate(z / _EdgeLength);
 				float4 edgeColor = tex2D(_RampTex, float2(degree, degree));
 
-				float4 col = tex2D(_MainTex, i.uvMainTex);
+				// float4 col = tex2D(_MainTex, i.uvMainTex);
+				 float4 col = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uvMainTex);
 
 				float4 finalColor = lerp(edgeColor, col, degree);
 				return float4(finalColor.rgb, 1);

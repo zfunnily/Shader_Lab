@@ -2,7 +2,7 @@ Shader "URP/WaterWave"
 {
 	Properties {
 		_NoiseTex ("Noise Texture (RG)", 2D) = "white" {}
-		_HeatTime  ("Heat Time", range (0,1)) = 0.1
+		_HeatTime  ("Heat Time", range (-1,1)) = 0.1
 		//波纹幅度
 		_WaveScale ("WaveScale", Vector) = (50, 50, 1, 1)
 		//折射偏移方向
@@ -86,7 +86,7 @@ Shader "URP/WaterWave"
 					#endif
 
 					//noise effect
-					half4 offsetColor1 = tex2D(_NoiseTex,  i.uvmain - _Time.yx*_HeatTime);
+					half4 offsetColor1 = tex2D(_NoiseTex,  i.uvmain + _Time.xz*_HeatTime);
 					half4 offsetColor2 = tex2D(_NoiseTex, i.uvmain - _Time.yx*_HeatTime);
 					half distortX = ((offsetColor1.r + offsetColor2.r) - 1) * _HeatForce * offsetDirectionX;
 					half distortY = ((offsetColor1.g + offsetColor2.g) - 1) * _HeatForce * offsetDirectionY;
