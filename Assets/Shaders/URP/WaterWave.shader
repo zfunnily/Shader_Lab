@@ -55,10 +55,6 @@ Shader "URP/WaterWave"
 				float _HeatForce;
 				float4 _NoiseTex_ST;
 				sampler2D _NoiseTex;
-				//SAMPLER(_CameraOpaqueTexture);
-				//SAMPLER(_AfterPostProcessTexture);
-				//SAMPLER(_CameraColorTexture);
-				//SAMPLER(_CameraColorAttachmentA);
 				SAMPLER(_SourceTex);
 
 				v2f vert (appdata_t v)

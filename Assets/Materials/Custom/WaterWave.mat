@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: WaterWave
   m_Shader: {fileID: 4800000, guid: ab355bb7f08f0914faa1c7b323dce9bd, type: 3}
-  m_ShaderKeywords: _OFFSETDIRECTION_X
+  m_ShaderKeywords: _WAVEDIRECTION_Y
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -96,7 +96,11 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _HeatForce: 0.008
-    - _HeatTime: 0.1
+    - _HeatForceX: 0.066
+    - _HeatForceY: 0.008
+    - _HeatTime: 0.233
+    - _HeatTimeX: 0.088
+    - _HeatTimeY: 0
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OffsetDirection: 0
@@ -108,14 +112,18 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
+    - _WaveDirection: 2
+    - _WaveScaleX: 0.0448
+    - _WaveScaleY: 0.0447
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _OffsetDirection: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
-    - _WaveScale: {r: 50, g: 50, b: 1, a: 1}
+    - _WaveScale: {r: -0.39, g: -0.89, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &6972558565580467279
 MonoBehaviour:

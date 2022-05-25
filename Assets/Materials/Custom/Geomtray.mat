@@ -96,9 +96,9 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
-    - _NoiseIntensity: 0
+    - _NoiseIntensity: -3.92
     - _OcclusionStrength: 1
-    - _Offset: -0.29
+    - _Offset: -0.01
     - _Parallax: 0.005
     - _QueueOffset: 0
     - _ReceiveShadows: 1
