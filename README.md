@@ -15,3 +15,4 @@ build-in是一些练习的例子。 URP目录下写的规范一点。下面主�
 - [黑洞unlit](Assets/Shaders/URP/BlackHoleUnlit.shader)
 - [消融+方向](Assets/Shaders/URP/Dissolve.shader)
 - [不透明物体折射](Assets/Shaders/URP/DistortionOpaque.shader)
+- [水波](Assets/Shaders/URP/WaterWave.shader)
