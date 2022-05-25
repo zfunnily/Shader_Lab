@@ -2,13 +2,17 @@ Shader "URP/WaterWave"
 {
 	Properties {
 		_NoiseTex ("Noise Texture (RG)", 2D) = "white" {}
-		_HeatTime  ("Heat Time", range (-1,1)) = 0.1
-		//波纹幅度
-		_WaveScale ("WaveScale", Vector) = (50, 50, 1, 1)
 		//折射偏移方向
-		[KeywordEnum(X,Y, XY, YX)] _OffsetDirection("OffsetDirection", Float) = 0.0
+		_OffsetDirection("_OffsetDirection", Vector) = (1, 1, 1, 1)
+		//波纹幅度
+		_WaveScaleX("WaveScaleX", range (.0,0.1)) = 0.008
+		_WaveScaleY("WaveScaleY", range (.0,0.1)) = 0.008
+		_HeatTimeX  ("Heat TimeX", range (-1,1)) = 0.1
+		_HeatTimeY  ("Heat TimeY", range (-1,1)) = 0.1
 		//波纹强度
 		_HeatForce  ("Heat Force", range (-0.1,0.1)) = 0.008
+		//波纹方向
+		// [KeywordEnum(X, NX, Y, NY)] _WaveDirection("WaveDirection", Float) = 0.0
 	}
 
 	SubShader {
@@ -27,7 +31,7 @@ Shader "URP/WaterWave"
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma fragmentoption ARB_precision_hint_fastest
-				#pragma multi_compile _OFFSETDIRECTION_X _OFFSETDIRECTION_Y _OFFSETDIRECTION_XY _OFFSETDIRECTION_YX
+				// #pragma multi_compile _WAVEDIRECTION_X _WAVEDIRECTION_NX _WAVEDIRECTION_Y _WAVEDIRECTION_NY
 
 				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -43,9 +47,12 @@ Shader "URP/WaterWave"
 				};
 
 
-				float4 _WaveScale;
+				float4 _OffsetDirection;
+				float _WaveScaleX;
+				float _WaveScaleY;
+				float _HeatTimeX;
+				float _HeatTimeY;
 				float _HeatForce;
-				float _HeatTime;
 				float4 _NoiseTex_ST;
 				sampler2D _NoiseTex;
 				//SAMPLER(_CameraOpaqueTexture);
@@ -61,37 +68,27 @@ Shader "URP/WaterWave"
 					o.vertex = vertexInput.positionCS;
 
 					o.uvmain = TRANSFORM_TEX( v.texcoord, _NoiseTex);
-				
+
 					return o;
 				}
 
 				half4 frag( v2f i ) : SV_Target
 				{
 					i.uvmain -= float2(.5,.5);
-					i.uvmain = i.uvmain * _WaveScale.xy;
+					i.uvmain = i.uvmain / float2(_WaveScaleX, _WaveScaleY);
 					i.uvmain += float2(.5,.5);
 
-					float offsetDirectionX = 0.0f;
-					float offsetDirectionY = 0.0f;
-					#if _OFFSETDIRECTION_X
-						offsetDirectionX = 1.0f;
-					#elif _OFFSETDIRECTION_Y
-						offsetDirectionY = 1.0f;
-					#elif _OFFSETDIRECTION_XY
-						offsetDirectionX = 1.0f;
-						offsetDirectionY = 1.0f;
-					#elif _OFFSETDIRECTION_YX
-						offsetDirectionX = 1.0f;
-						offsetDirectionY = -1.0f;
-					#endif
+					i.uvmain = i.uvmain +  float2(_HeatTimeX, _HeatTimeY) * _Time.yz;
 
 					//noise effect
-					half4 offsetColor1 = tex2D(_NoiseTex,  i.uvmain + _Time.xz*_HeatTime);
-					half4 offsetColor2 = tex2D(_NoiseTex, i.uvmain - _Time.yx*_HeatTime);
-					half distortX = ((offsetColor1.r + offsetColor2.r) - 1) * _HeatForce * offsetDirectionX;
-					half distortY = ((offsetColor1.g + offsetColor2.g) - 1) * _HeatForce * offsetDirectionY;
+					half4 offsetColor1 = tex2D(_NoiseTex,  i.uvmain + _Time.xz * _HeatTimeX);
+					half4 offsetColor2 = tex2D(_NoiseTex, i.uvmain + _Time.yz * _HeatTimeY);
+					half distortX = ((offsetColor1.r + offsetColor2.r) - 1) * _HeatForce;
+					half distortY = ((offsetColor1.g + offsetColor2.g) - 1) * _HeatForce;
 
-					half2 screenUV = (i.vertex.xy / _ScreenParams.xy)+ float2(distortX, distortY);
+					half2 screenUV = (i.vertex.xy / _ScreenParams.xy) + float2(distortX, distortY) ; //
+					screenUV +=  _OffsetDirection.xy / _ScreenParams.xy;
+
 
 					half4 col = tex2D(_SourceTex, screenUV);
 					col.a = 1.0f;
