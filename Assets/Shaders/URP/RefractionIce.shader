@@ -140,7 +140,7 @@ Shader "URP/RefractionICE"
 
 				float4 tex2DNode17 = tex2D( _RefractionTex, i.uvrefraction);
 				float4 appendResult18 = (float4(tex2DNode17.r , tex2DNode17.g , 0.0 , 0.0));
-				color.rgb = color.rgb + Refraction( i, ( appendResult18 * _RefractionPower ).x, _ChromaticAberration ) * ( 1 - color.a );
+				color.rgb += Refraction( i, ( appendResult18 * _RefractionPower ).x, _ChromaticAberration ) * ( 1 - color.a );
 				color.a = 1;
 				return color;
 			}
