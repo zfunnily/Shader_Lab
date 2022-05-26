@@ -2,6 +2,7 @@ Shader "URP/RefractionICE"
 {
 	Properties
 	{
+		_Gloss("_Gloss", Float) = 1
 		_RefractionPower("RefractionPower", Float) = 0
 		[Header(Refraction)]
 		_ChromaticAberration("Chromatic Aberration", Range( 0 , 0.3)) = 0.1
@@ -25,14 +26,12 @@ Shader "URP/RefractionICE"
 		ZWrite Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
-		// GrabPass{ "RefractionGrab1" }
 		Pass 
 		{
 			Tags{"LightMode" = "Grab"}
 			HLSLPROGRAM
 			#pragma multi_compile _ALPHAPREMULTIPLY_ON
 			#pragma exclude_renderers xbox360 xboxone ps4 psp2 n3ds wiiu 
-			// #pragma surface surf StandardSpecular keepalpha finalcolor:RefractionF noshadow exclude_path:deferred nolightmap  nodynlightmap nodirlightmap 
 			#pragma vertex vert
 			#pragma fragment frag
 
@@ -52,9 +51,11 @@ Shader "URP/RefractionICE"
 				float2 uvmain : TEXCOORD0;
 				float4 worldPos : TEXCOORD1;
 				float4 screenPos : TEXCOORD2;
+				float2 uvrefraction: TEXCOORD3;
 				float3 normal : NORMAL;
 			};
 
+			float _Gloss;
 			uniform sampler2D _Diffuse;
 			uniform float4 _Diffuse_ST;
 			uniform float4 _DiffuseColor;
@@ -83,7 +84,7 @@ Shader "URP/RefractionICE"
 				#if SHADER_API_D3D9 || SHADER_API_D3D11
 					screenPos.w += 0.00000000001;
 				#endif
-				float2 projScreenPos = ( screenPos / screenPos.w ).xy;
+				float2 projScreenPos = ( screenPos ).xy;
 				float3 worldViewDir = normalize( GetCameraPositionWS() - i.worldPos  );
 				float3 refractionOffset = ( ( ( ( indexOfRefraction - 1.0 ) * mul( UNITY_MATRIX_V, float4( worldNormal, 0.0 ) ) ) * ( 1.0 / ( screenPos.z + 1.0 ) ) ) * ( 1.0 - dot( worldNormal, worldViewDir ) ) );
 				float2 cameraRefraction = float2( refractionOffset.x, -( refractionOffset.y * _ProjectionParams.x ) );
@@ -100,6 +101,7 @@ Shader "URP/RefractionICE"
 				o.vertex = vertexInput.positionCS;
 
 				o.uvmain = TRANSFORM_TEX( v.texcoord, _Diffuse);
+				o.uvrefraction = TRANSFORM_TEX( v.texcoord, _RefractionTex);
 				o.normal = TransformObjectToWorldNormal(v.normal);
 				o.worldPos = mul(unity_ObjectToWorld,v.vertex);
 				o.screenPos = ComputeScreenPos(o.vertex);
@@ -109,8 +111,7 @@ Shader "URP/RefractionICE"
 			
 			half4 frag( v2f i ) : SV_Target
 			{
-				float2 uv_Diffuse = i.uvmain * _Diffuse_ST.xy + _Diffuse_ST.zw;
-				float3 albedo = ( tex2D( _Diffuse, uv_Diffuse ) * _DiffuseColor ).rgb; //1
+				float3 albedo = ( tex2D( _Diffuse, i.uvmain) * _DiffuseColor ).rgb; //1
 				float3 ase_worldViewDir = normalize( GetCameraPositionWS() - i.worldPos);
 				float3 ase_worldNormal = i.normal;
 				float fresnelNdotV10 = dot( ase_worldNormal, ase_worldViewDir );
@@ -118,20 +119,26 @@ Shader "URP/RefractionICE"
 				float3 Emission = ( ( _EmissionColor * _EmissionPower ) + ( fresnelNode10 * _FresnelColor ) ).rgb; //2
 				float Alpha = _Opacity; //3
 
-				float2 screenPos = i.screenPos.xy/i.screenPos.w;
-    			screenPos.xy *= _ScreenParams.xy;
-				float2 normal = i.normal + 0.00001 * screenPos * i.worldPos; //4
+				i.screenPos.xy /= i.screenPos.w;
+				// float2 normal = i.normal + 0.00001 * i.screenPos * i.worldPos; //4
+				float3 normal = i.normal + i.screenPos * i.worldPos; //4
 
+				//漫反射
 				float3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;				
 				float3 worldLightDir = normalize(_MainLightPosition.xyz - i.worldPos);
-				float3 diffuse = _MainLightColor.rgb * albedo * max(0, dot(normal, worldLightDir));
+				float3 lambert = 0.5 * dot(normal, worldLightDir) + 0.5;
+				float3 diffuse = _MainLightColor.rgb * lambert * albedo + ambient ; 
+
+				//高光反射
+				half3 reflectDir = normalize(reflect(worldLightDir, normal));
+				float3 spec = pow(saturate(dot(worldLightDir,-reflectDir)), _Gloss) * _MainLightColor.rgb;
 
 				float4 color = 0;
-				color.rgb += diffuse.rgb;
-				color.rgb += Emission.rgb;
+				color.rgb *= diffuse.rgb;
+				color.rgb *= spec.rgb;
+				color.rgb *= Emission.rgb;
 
-				float2 uv_RefractionTex = i.uvmain * _RefractionTex_ST.xy + _RefractionTex_ST.zw;
-				float4 tex2DNode17 = tex2D( _RefractionTex, uv_RefractionTex );
+				float4 tex2DNode17 = tex2D( _RefractionTex, i.uvrefraction);
 				float4 appendResult18 = (float4(tex2DNode17.r , tex2DNode17.g , 0.0 , 0.0));
 				color.rgb = color.rgb + Refraction( i, ( appendResult18 * _RefractionPower ).x, _ChromaticAberration ) * ( 1 - color.a );
 				color.a = 1;
@@ -142,5 +149,4 @@ Shader "URP/RefractionICE"
 		}
 		
 	}
-	CustomEditor "ASEMaterialInspector"
 }
