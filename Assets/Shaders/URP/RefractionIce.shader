@@ -10,8 +10,9 @@ Shader "URP/RefractionICE"
 		_FresnelColor("FresnelColor", Color) = (0,0,0,0)
 		_EmissionColor("EmissionColor", Color) = (0,0,0,0)
 		_DiffuseColor("DiffuseColor", Color) = (0,0,0,0)
+		_SpecularColor("SpecularColor", Color) = (1,1,1,1)
 		_FresnelPower("FresnelPower", Float) = 0
-		_Opacity("Opacity", Float) = 0
+		// _Opacity("Opacity", Float) = 0
 		_RefractionTex("RefractionTex", 2D) = "white" {}
 		_FresnelScale("FresnelScale", Float) = 0
 		_EmissionPower("EmissionPower", Float) = 0
@@ -37,6 +38,7 @@ Shader "URP/RefractionICE"
 
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+			#include "Lighting.hlsl"
 
 			struct appdata_t {
 				float4 vertex : POSITION;
@@ -59,12 +61,12 @@ Shader "URP/RefractionICE"
 			uniform sampler2D _Diffuse;
 			uniform float4 _Diffuse_ST;
 			uniform float4 _DiffuseColor;
+			uniform float4 _SpecularColor;
 			uniform float4 _EmissionColor;
 			uniform float _EmissionPower;
 			uniform float _FresnelScale;
 			uniform float _FresnelPower;
 			uniform float4 _FresnelColor;
-			uniform float _Opacity;
 			uniform float _ChromaticAberration;
 			uniform sampler2D _RefractionTex;
 			uniform float4 _RefractionTex_ST;
@@ -111,36 +113,29 @@ Shader "URP/RefractionICE"
 			
 			half4 frag( v2f i ) : SV_Target
 			{
-				float3 albedo = ( tex2D( _Diffuse, i.uvmain) * _DiffuseColor ).rgb; //1
-				float3 ase_worldViewDir = normalize( GetCameraPositionWS() - i.worldPos);
-				float3 ase_worldNormal = i.normal;
-				float fresnelNdotV10 = dot( ase_worldNormal, ase_worldViewDir );
+				float3 albedo = ( tex2D( _Diffuse, i.uvmain)).rgb; //1
+				float3 viewDirWS = normalize( GetCameraPositionWS() - i.worldPos);
+				float fresnelNdotV10 = dot( i.normal, viewDirWS);
 				float fresnelNode10 = ( 0.0 + _FresnelScale * pow( 1.0 - fresnelNdotV10, _FresnelPower ) );
 				float3 Emission = ( ( _EmissionColor * _EmissionPower ) + ( fresnelNode10 * _FresnelColor ) ).rgb; //2
-				float Alpha = _Opacity; //3
 
 				i.screenPos.xy /= i.screenPos.w;
 				// float2 normal = i.normal + 0.00001 * i.screenPos * i.worldPos; //4
-				float3 normal = i.normal + i.screenPos * i.worldPos; //4
-
-				//漫反射
-				float3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;				
-				float3 worldLightDir = normalize(_MainLightPosition.xyz - i.worldPos);
-				float3 lambert = 0.5 * dot(normal, worldLightDir) + 0.5;
-				float3 diffuse = _MainLightColor.rgb * lambert * albedo + ambient ; 
-
-				//高光反射
-				half3 reflectDir = normalize(reflect(worldLightDir, normal));
-				float3 spec = pow(saturate(dot(worldLightDir,-reflectDir)), _Gloss) * _MainLightColor.rgb;
-
-				float4 color = 0;
-				color.rgb *= diffuse.rgb;
-				color.rgb *= spec.rgb;
-				color.rgb *= Emission.rgb;
 
 				float4 tex2DNode17 = tex2D( _RefractionTex, i.uvrefraction);
 				float4 appendResult18 = (float4(tex2DNode17.r , tex2DNode17.g , 0.0 , 0.0));
-				color.rgb += Refraction( i, ( appendResult18 * _RefractionPower ).x, _ChromaticAberration ) * ( 1 - color.a );
+				float3 refraction = Refraction( i, ( appendResult18 * _RefractionPower ).x, _ChromaticAberration ) ;
+
+				Light light = GetMainLight();
+				half3 diffuse = LightingBased(albedo, light, i.normal, viewDirWS, _DiffuseColor.rgb, _SpecularColor.rgb, _Gloss);
+
+				half3 ambient = SampleSH(i.normal) * albedo; //环境光
+
+				float4 color = 0;
+				color.rgb += Emission.rgb;
+				color.rgb += diffuse.rgb + ambient.rgb;
+
+				color.rgb *= refraction;
 				color.a = 1;
 				return color;
 			}
